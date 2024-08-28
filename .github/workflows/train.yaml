@@ -59,7 +59,7 @@ jobs:
         run: |
           FILE_UPLOAD_RESPONSE=$(
             curl -s -X POST "https://api.replicate.com/v1/files" \
-              -H "Authorization: Token $REPLICATE_API_TOKEN" \
+              -H "Authorization: Bearer ${{ secrets.REPLICATE_API_TOKEN }}" \
               -H "Content-Type: multipart/form-data" \
               -F "content=@data.zip;type=application/zip;filename=data.zip"
           )
