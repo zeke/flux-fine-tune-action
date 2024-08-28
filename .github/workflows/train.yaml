@@ -90,5 +90,6 @@ jobs:
       - name: Link to model
         run: |
           echo "🚂 Your model is now training!"
-          echo "This takes a few minutes, depending on how many training steps you're running."
-          echo "To see your model, visit https://replicate.com/${{ inputs.destination }} and refresh until you see the prediction form."
+          echo "This takes a few minutes, and the duration depends on how many training steps you're running."
+          echo "To monitor the progress of your training job, visit the Replicate dashboard at https://replicate.com"
+          echo "When training finishes, you'll be able to run predictions with your new model using the web UI or via API at https://replicate.com/${{ inputs.destination }}"
