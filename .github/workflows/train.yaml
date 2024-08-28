@@ -60,7 +60,7 @@ jobs:
         id: upload-training-data
         run: |
           FILE_UPLOAD_RESPONSE=$(
-            curl -s -X POST "https://api.replicate.com/v1/files" \
+            curl -X POST "https://api.replicate.com/v1/files" \
               -H "Authorization: Bearer ${{ secrets.REPLICATE_API_TOKEN }}" \
               -H "Content-Type: multipart/form-data" \
               -F "content=@data.zip;type=application/zip;filename=data.zip"
@@ -74,7 +74,7 @@ jobs:
 
       - name: Start training
         run: |
-          curl -s -X POST \
+          curl -X POST \
           -H "Authorization: Bearer ${{ secrets.REPLICATE_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           -d '{
