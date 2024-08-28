@@ -83,7 +83,7 @@ jobs:
                       "trigger_word": "${{ inputs.trigger_word }}",
                       "input_images": "${{ steps.upload-training-data.outputs.INSTANCE_DATA_URL }}",
                       "steps": ${{ inputs.steps }}
-                  },
+                  }
               }' \
           "https://api.replicate.com/v1/models/${{ inputs.trainer_model }}/versions/${{ inputs.trainer_version }}/trainings"
 
