@@ -8,14 +8,16 @@ on:
       destination:
         required: true
         description: The name of the Replicate model to publish to, in the format `username/model`. The model must already exist.
+        type: string
       trigger_word:
         required: true
         description: A short and unique non-word string representing your custom trained style or concept. This should be an uncommon string of letters like `ZXZX`, rather than a common word or name like `sarah` of `dog`. You'll use this string in prompts when running the model like "a pencil sketch of ZXZX sitting in a meadow".
+        type: string
       steps:
         required: true
         description: Total number of training steps to perform. Higher numbers produce more accurate results, but take longer to run. Set this to something low like 100 to test that your workflow is working, then run again at a higher number like 1000 to train more accurately.
         type: number
-        default: 1000 
+        default: 100 
       trainer_model:
         required: true
         description: The name of the trainer model to use, in the format `owner/model`.
