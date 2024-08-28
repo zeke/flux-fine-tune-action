@@ -1,0 +1,89 @@
+name: Train a model
+
+# This workflow is triggered manually from the GitHub website.
+# To run it, click the "Actions" tab on the repo page.
+on:
+  workflow_dispatch:
+    inputs:
+      destination:
+        required: true
+        description: The name of the Replicate model to publish to, in the format `username/model`. The model must already exist.
+      trigger_word:
+        required: true
+        description: A short and unique non-word string representing your custom trained style or concept. This should be an uncommon string of letters like `ZXZX`, rather than a common word or name like `sarah` of `dog`. You'll use this string in prompts when running the model like "a pencil sketch of ZXZX sitting in a meadow".
+      steps:
+        required: true
+        description: Total number of training steps to perform. Higher numbers produce more accurate results, but take longer to run. Set this to something low like 100 to test that your workflow is working, then run again at a higher number like 1000 to train more accurately.
+        type: number
+        default: 1000 
+      trainer_model:
+        required: true
+        description: The name of the trainer model to use, in the format `owner/model`.
+        type: string
+        default: "ostris/flux-dev-lora-trainer"
+      trainer_version:
+        required: true
+        description: The version of the trainer model to use.
+        type: string
+        default: "7f53f82066bcdfb1c549245a624019c26ca6e3c8034235cd4826425b61e77bec"
+
+# Create a Replicate API token at https://replicate.com/account/api-tokens
+env:
+  replicate-api-token: ${{ secrets.REPLICATE_API_TOKEN }}
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check secrets
+        if: ${{ env.replicate-api-token == '' }}
+        run: |
+          echo "🙈 Uh oh! Missing repository secret: REPLICATE_API_TOKEN"
+          echo "Go to https://replicate.com/account to copy your API token,"
+          echo "then visit https://github.com/${{ github.repository }}/settings/secrets/actions/new to set it."
+          echo 
+          echo 
+          echo 
+          exit 1
+    
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Zip training data
+        run: |
+          zip -r data.zip data
+      
+      - name: Upload training data
+        id: upload-training-data
+        run: |
+          FILE_UPLOAD_RESPONSE=$(
+            curl -s -X POST "https://api.replicate.com/v1/files" \
+              -H "Authorization: Token $REPLICATE_API_TOKEN" \
+              -H "Content-Type: multipart/form-data" \
+              -F "content=@data.zip;type=application/zip;filename=data.zip"
+          )
+
+          echo "INSTANCE_DATA_URL=$(jq -r '.urls.get' <<< $FILE_UPLOAD_RESPONSE)" >> $GITHUB_OUTPUT
+
+      - name: Start training
+        run: |
+          curl -s -X POST \
+          -H "Authorization: Token ${{ secrets.REPLICATE_API_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+                  "destination": "${{ inputs.destination }}",
+                  "input": {
+                      "trigger_word": "${{ inputs.trigger_word }}",
+                      "input_images": "${{ steps.upload-training-data.outputs.INSTANCE_DATA_URL }}",
+                      "steps": ${{ inputs.steps }}
+                  },
+              }' \
+              :
+          https://api.replicate.com/v1/models/${{ inputs.trainer_model }}/versions/${{ inputs.trainer_version }}/trainings
+
+      - name: Link to model
+        run: |
+          echo "🚂 Your model is now training!"
+          echo "This takes a few minutes, depending on how many training steps you're running."
+          echo "To see your model, visit https://replicate.com/${{ inputs.destination }} and refresh until you see the prediction form."
