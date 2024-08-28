@@ -64,12 +64,16 @@ jobs:
               -F "content=@data.zip;type=application/zip;filename=data.zip"
           )
 
+          echo $FILE_UPLOAD_RESPONSE
+          echo $FILE_UPLOAD_RESPONSE | jq
+
+          echo "INSTANCE_DATA_URL=$(jq -r '.urls.get' <<< $FILE_UPLOAD_RESPONSE)"
           echo "INSTANCE_DATA_URL=$(jq -r '.urls.get' <<< $FILE_UPLOAD_RESPONSE)" >> $GITHUB_OUTPUT
 
       - name: Start training
         run: |
           curl -s -X POST \
-          -H "Authorization: Token ${{ secrets.REPLICATE_API_TOKEN }}" \
+          -H "Authorization: Bearer ${{ secrets.REPLICATE_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           -d '{
                   "destination": "${{ inputs.destination }}",
