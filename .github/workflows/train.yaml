@@ -85,8 +85,7 @@ jobs:
                       "steps": ${{ inputs.steps }}
                   },
               }' \
-              :
-          https://api.replicate.com/v1/models/${{ inputs.trainer_model }}/versions/${{ inputs.trainer_version }}/trainings
+          "https://api.replicate.com/v1/models/${{ inputs.trainer_model }}/versions/${{ inputs.trainer_version }}/trainings"
 
       - name: Link to model
         run: |
